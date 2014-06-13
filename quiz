@@ -1,0 +1,222 @@
+#include<stdio.h>
+#include<conio.h>
+#include<stdlib.h>
+#include<string.h>
+struct questions
+{
+	int num;
+	char que[80];
+	char op1[40], op2[40], op3[40], op4[40];
+	int correct;
+
+
+}q;
+void main()
+{
+	clrscr();
+       //	setbkcolor(RED);
+	int option,count=0,choice1,choice2,num,pass;
+	FILE *fp1,*fp2,*fp3,*fp4,*fp5,*fp6,*fp7;
+	char choice3;
+	while(1)
+	{
+	system("cls");
+	printf("\n \n \n \t \t \t ******** WELCOME TO QUIZ-ZONE ******** \n \n \n");
+	printf("\t \t \t 1-Play Game\n");
+	printf("\t \t \t 2-Admin Mode\n");
+	printf("\t \t \t 3-Quit\n \n \n");
+	printf("\t \t \t Enter your choice: ");
+	scanf("%d",&choice1);
+	switch(choice1)
+	{
+	case 1:
+	{
+
+		fp1=fopen("ques.txt","r");
+		while(fscanf(fp1,"%d %[^\n] %s %s %s %s %d",&q.num,q.que,q.op1,q.op2,q.op3,q.op4,&q.correct)!=EOF)
+		{
+			system("cls");
+			printf("%d %s\n1.%s        2.%s\n3.%s        4.%s",q.num,q.que,q.op1,q.op2,q.op3,q.op4);
+			printf("\nEnter your option :");
+			scanf("%d",&option);
+			if(q.correct!=option)
+			{
+				printf("You lose!!!!!\nPress enter to exit\n");
+				getche();
+				break;
+			}
+			count++;
+			printf("\nCorrect answer!!!!!!!!\nYour score : %d\nPress Enter to continue.\n",count);
+			getche();
+		}
+		if(count==5)
+		{	printf("You win!!!!\n\nPress Enter to Exit\n");
+			getche();
+		}
+		fclose(fp1);
+	}break;
+	case 2:
+	{
+		system("cls");
+		printf("\n\n\n\n\t\t\t******** Enter Password ********\n\t\t\t");
+		scanf("%d",&pass);
+		if(pass==111)
+		{
+		system("cls");
+		printf("\n \n \n \t \t \t ******** Welcome Admin ******** \n \n \n ");
+		printf("\t \t \t \t 1-View questions\n");
+		printf("\t \t \t \t 2-Add questions\n");
+		printf("\t \t \t \t 3-Modify questions\n");
+		printf("\t \t \t \t 4-Delete questions\n");
+		printf("\t \t \t \t 5-Exit\n");
+		printf("\t \t \t \t Enter your choice: ");
+		scanf("%d",&choice2);
+		system("cls");
+		switch(choice2)
+		{
+			//To exit
+			case 5:
+			{
+				//exit(0);
+				break;
+			}
+			case 1:
+			{       printf("\nPress Enter to view list\n");
+				//getche();
+				fp2=fopen("ques.txt","r");
+				fflush(stdin);
+				printf("\nList of questions:\n");
+				while(fscanf(fp2,"%d %[^\n] %s %s %s %s %d",&q.num,q.que,q.op1,q.op2,q.op3,q.op4,&q.correct)!=EOF)
+				{
+					 fflush(stdin);
+					printf("\n%d %s\n1.%s        2.%s\n3.%s        4.%s\nCorrect answer : %d\n",q.num,q.que,q.op1,q.op2,q.op3,q.op4,q.correct);
+					getche();
+				}
+				fclose(fp2);
+				printf("\nPress Enter to Exit\n");
+				getche();
+			}
+			break;
+			case 2:
+			{
+				fp3=fopen("ques.txt","a");
+				do
+				{
+				printf("Enter Question number : ");
+				scanf("%d",&q.num);
+				fflush(stdin);
+				printf("\nEnter question : ");
+				scanf("%[^\n]",&q.que);
+				fflush(stdin);
+				printf("\nEnter option1 : ");
+				scanf("%s",&q.op1);
+				fflush(stdin);
+				printf("\nEnter option2 : ");
+				scanf("%s",&q.op2);
+				fflush(stdin);
+				printf("\nEnter option3 : ");
+				scanf("%s",&q.op3);
+				fflush(stdin);
+				printf("\nEnter option4 : ");
+				scanf("%s",&q.op4);
+				fflush(stdin);
+				printf("\nEnter correct option : ");
+				scanf("%d",&q.correct);
+				fflush(stdin);
+				printf("\nDo you want to continue?(y/n)");
+				scanf("%c",&choice3);
+				fprintf(fp3,"\n%d %s \n%s \n%s \n%s \n%s \n%d",q.num,q.que,q.op1,q.op2,q.op3,q.op4,q.correct);
+				}while(choice3=='y'||choice3=='Y');
+				fclose(fp3);
+			}
+			break;
+			case 4:
+			{
+				fp4=fopen("ques.txt","r");
+				fp5=fopen("temp.txt","w");
+				printf("\nEnter the question number for deletion : ");
+				scanf("%d",&num);
+				while(num!=q.num)
+				{	printf("Question do not exist!!!!\n");
+					printf("Enter the question number for deletion : ");
+					scanf("%d",&num);
+				}
+				while(fscanf(fp4,"%d %[^\n] %s %s %s %s %d",&q.num,q.que,q.op1,q.op2,q.op3,q.op4,&q.correct)!=EOF)
+				{
+					if(q.num!=num)
+					fprintf(fp5,"\n%d\n%s \n%s\n%s\n%s\n%s\n%d",q.num,q.que,q.op1,q.op2,q.op3,q.op4,q.correct);
+				}
+				fclose(fp4);
+				fclose(fp5);
+				remove("ques.txt");
+				rename("temp.txt","ques.txt");
+				printf("\nQuestion you asked deleted.\nPress Enter to Exit\n");
+				getche();
+
+			}
+			break;
+			case 3:
+			{
+				fp6=fopen("ques.txt","r");
+				fp7=fopen("temp.txt","w");
+				printf("\nEnter the question number for modification(1-10) : ");
+				scanf("%d",&num);
+				printf("\nWriting Questions\n\n");
+				while(fscanf(fp6,"%d %[^\n] %s %s %s %s %d",&q.num,q.que,q.op1,q.op2,q.op3,q.op4,&q.correct)!=EOF)
+				{
+					if(q.num==num)
+						break;
+					fprintf(fp7,"\n%d\n%s \n%s\n%s\n%s\n%s\n%d",q.num,q.que,q.op1,q.op2,q.op3,q.op4,q.correct);
+				}
+				printf("Enter Question number : ");
+				scanf("%d",&q.num);
+				fflush(stdin);
+				printf("\nEnter question : ");
+				scanf("%[^\n]",&q.que);
+				fflush(stdin);
+				printf("\nEnter option1 : ");
+				scanf("%s",&q.op1);
+				fflush(stdin);
+				printf("\nEnter option2 : ");
+				scanf("%s",&q.op2);
+				fflush(stdin);
+				printf("\nEnter option3 : ");
+				scanf("%s",&q.op3);
+				fflush(stdin);
+				printf("\nEnter option4 : ");
+				scanf("%s",&q.op4);
+				printf("\nEnter correct option");
+				scanf("%d",&q.correct);
+				fprintf(fp7,"\n%d\n%s \n%s\n%s\n%s\n%s\n%d",q.num,q.que,q.op1,q.op2,q.op3,q.op4,q.correct);
+				printf("\nPrinting remaining Questions\n\n");
+				while(fscanf(fp6,"%d %[^\n] %s %s %s %s %d",&q.num,q.que,q.op1,q.op2,q.op3,q.op4,&q.correct)!=EOF)
+				{
+					fprintf(fp7,"\n%d\n%s \n%s\n%s\n%s\n%s\n%d",q.num,q.que,q.op1,q.op2,q.op3,q.op4,q.correct);
+				}
+				fclose(fp6);
+				fclose(fp7);
+				remove("ques.txt");
+				rename("temp.txt","ques.txt");
+				getche();
+			}
+			break;
+		}	//closing switch2
+		}	//closing if password
+		else
+			printf("\n\n\t\t\tWrong Password\n") ;
+			getche();
+		}
+		break;
+		case 3:
+		{
+			exit(0);
+		}
+		break;
+		default:
+		{
+			printf("\nWrong choice\n");
+			exit(0);
+		}
+	}	//closing switch1
+	}	 //closing while
+} //closing main
