@@ -1,0 +1,395 @@
+#include<fstream.h>
+#include<conio.h>
+#include<stdio.h>
+#include<process.h>
+#include<string.h>
+#include<iomanip.h>
+
+class book
+{
+	char bno[6];
+	char bname[50];
+	char aname[20];
+  public:
+	void create_book()
+	{
+		cout<<"\n\tNEW BOOK ENTRY\n";
+		cout<<"Enter book no: ";
+		cin>>bno;
+		cout<<"\nEnter book name: ";
+		gets(bname);
+		cout<<"\nEnter author: ";
+		gets(aname);
+		cout<<"\nBook added to stock\n";
+	}
+
+	void show_book()
+	{
+		cout<<"\nBook no: "<<bno;
+		cout<<"\nBook name: ";
+		puts(bname);
+		cout<<"\nAuthor name: ";
+		puts(aname);
+	}
+
+	void modify_book()
+	{
+		cout<<"\nBook no: "<<bno;
+		cout<<"\nNew book name: ";
+		gets(bname);
+		cout<<"\nNew author name: ";
+		gets(aname);
+	}
+
+	char* retbno()
+	{
+		return bno;
+	}
+
+	void report()
+	{
+		cout<<bno<<setw(30)<<bname<<setw(30)<<aname<<endl;
+	}
+};         //class ends here
+
+class item
+{
+	char ino[6];
+	char name[20];
+	char qty[6];
+	int token;
+
+	public:
+	void create_item()
+	{
+		clrscr();
+		cout<<"\n\tNEW STATIONARY ITEM ENTRY";
+		cout<<"\nEnter item no: ";
+		cin>>ino;
+		cout<<"\nEnter name of item: ";
+		gets(name);
+		cout<<"\nEnter quantity of item: ";
+		cin>>qty;
+		cout<<"\nItem added to stock\n";
+	}
+
+	void show_item()
+	{
+		cout<<"\nItem no: "<<ino;
+		cout<<"\nItem name: ";
+		puts(name);
+		cout<<"\Quantity: "<<qty;
+	}
+
+	void modify_item()
+	{
+		cout<<"\nItem no: "<<ino;
+		cout<<"\nNew item name: ";
+		gets(name);
+	}
+
+	char* retadmno()
+	{
+		return ino;
+	}
+
+	char* retstbno()
+	{
+		return qty;
+	}
+
+	void getstbno(char t[])
+	{
+		strcpy(qty,t);
+	}
+
+	void report()
+	{
+	cout<<"\t"<<ino<<setw(20)<<name<<setw(10)<<qty<<endl;
+	}
+
+};         //class ends here
+
+fstream fp,fp1;
+book bk;
+item st;
+
+// FUNCTION TO WRITE IN FILES
+void write_book()
+{
+	char ch;
+	fp.open("book.dat",ios::out|ios::app);
+	do
+	{
+		clrscr();
+		bk.create_book();
+		fp.write((char*)&bk,sizeof(book));
+		cout<<"\nDo you want to add more books(y/n)?";
+		cin>>ch;
+	}while(ch=='y'||ch=='Y');
+	fp.close();
+}
+
+void write_item()
+{
+	char ch;
+	fp.open("item.dat",ios::out|ios::app);
+	do
+	{
+		st.create_item();
+		fp.write((char*)&st,sizeof(item));
+		cout<<"\nDo you want to add more items(y/n)?";
+		cin>>ch;
+	}while(ch=='y'||ch=='Y');
+	fp.close();
+}
+
+//FUNCTIONS TO MODIFY IN FILE
+
+void modify_book()
+{
+	char n[6];
+	int found=0;
+	clrscr();
+	cout<<"\n\tMODIFY BOOK REOCORD";
+	cout<<"\nEnter book no. to be modified: ";
+	cin>>n;
+	fp.open("book.dat",ios::in|ios::out);
+	while(fp.read((char*)&bk,sizeof(book)) && found==0)
+	{
+		if(strcmpi(bk.retbno(),n)==0)
+		{
+			bk.show_book();
+			cout<<"\nEnter new details of the book"<<endl;
+			bk.modify_book();
+			int pos=-1*sizeof(bk);
+			fp.seekp(pos,ios::cur);
+			fp.write((char*)&bk,sizeof(book));
+			cout<<"\nBook Updated";
+			found=1;
+		}
+	}
+
+	fp.close();
+	if(found==0)
+		cout<<"\nBook not found ";
+	getch();
+}
+
+void modify_item()
+{
+	char n[6];
+	int found=0;
+	clrscr();
+	cout<<"\n\tMODIFY ITEM RECORD";
+	cout<<"\nEnter item no: ";
+	cin>>n;
+	fp.open("item.dat",ios::in|ios::out);
+	while(fp.read((char*)&st,sizeof(item)) && found==0)
+	{
+		if(strcmpi(st.retadmno(),n)==0)
+		{
+			st.show_item();
+			cout<<"\nEnter new details of the item"<<endl;
+			st.modify_item();
+			int pos=-1*sizeof(st);
+			fp.seekp(pos,ios::cur);
+			fp.write((char*)&st,sizeof(item));
+			cout<<"\nRecord Updated";
+			found=1;
+		}
+	}
+
+	fp.close();
+	if(found==0)
+		cout<<"\nItem not found ";
+	getch();
+}
+
+//FUNCTION TO DELETE IN FILES
+
+void delete_item()
+{
+	char n[6];
+	int flag=0;
+	clrscr();
+	cout<<"\n\tDELETE ITEM";
+	cout<<"\nEnter item no to be deleted: ";
+	cin>>n;
+	fp.open("item.dat",ios::in|ios::out);
+	fstream fp2;
+	fp2.open("Tempp.dat",ios::out);
+	fp.seekg(0,ios::beg);
+	while(fp.read((char*)&st,sizeof(item)))
+	{
+		if(strcmpi(st.retadmno(),n)!=0)
+			fp2.write((char*)&st,sizeof(item));
+		else
+			flag=1;
+	}
+
+	fp2.close();
+	fp.close();
+	remove("item.dat");
+	rename("Tempp.dat","item.dat");
+	if(flag==1)
+		cout<<"\nItem deleted";
+	else
+		cout<<"\nItem not found";
+	getch();
+}
+
+void delete_book()
+{
+	char n[6];
+	clrscr();
+	cout<<"\n\tDELETE BOOK";
+	cout<<"\nEnter book no to be deleted: ";
+	cin>>n;
+	fp.open("book.dat",ios::in|ios::out);
+	fstream fp2;
+	fp2.open("Temp.dat",ios::out);
+	fp.seekg(0,ios::beg);
+	while(fp.read((char*)&bk,sizeof(book)))
+	{
+		if(strcmpi(bk.retbno(),n)!=0)
+		{
+			fp2.write((char*)&bk,sizeof(book));
+		}
+	}
+
+	fp2.close();
+	fp.close();
+	remove("book.dat");
+	rename("Temp.dat","book.dat");
+	cout<<"\nBook Deleted";
+	getch();
+}
+
+
+// FUNCTION TO VIEW ITEMS
+
+void display_alls()
+{
+	clrscr();
+	fp.open("item.dat",ios::in);
+	if(!fp)
+	{
+		cout<<"ERROR!!! FILE COULD NOT BE OPENED";
+		getch();
+		return;
+	}
+
+	cout<<"\n\tITEM LIST\n";
+	cout<<"==================================================================\n";
+	cout<<"\tITEM NO"<<setw(10)<<" ITEM NAME"<<setw(20)<<"QUANTITY\n";
+	cout<<"==================================================================\n";
+
+	while(fp.read((char*)&st,sizeof(item)))
+	{
+		st.report();
+	}
+
+	fp.close();
+	getch();
+}
+
+// FUNCTION TO DISPLAY BOOKS
+
+void display_allb()
+{
+	clrscr();
+	fp.open("book.dat",ios::in);
+	if(!fp)
+	{
+		cout<<"ERROR!!! FILE COULD NOT BE OPENED ";
+		getch();
+		return;
+	}
+
+	cout<<"\n\tBook LIST\n";
+	cout<<"=========================================================================\n";
+	cout<<"Book Number"<<setw(20)<<"Book Name"<<setw(25)<<"Author\n";
+	cout<<"=========================================================================\n";
+
+	while(fp.read((char*)&bk,sizeof(book)))
+	{
+		bk.report();
+	}
+	fp.close();
+	getch();
+}
+
+//INTRODUCTION FUNCTION
+void intro()
+{
+	clrscr();
+	/*gotoxy(35,11);
+	cout<<"STATIONARY";
+	gotoxy(35,14);
+	cout<<"MANAGEMENT";
+	gotoxy(35,17);
+	cout<<"SYSTEM";  */
+	cout<<"\n\n\n\n\n\n\n\t\t\t\t\t\t\t\t\t\tSTATIONARY MANAGEMENT SYSTEM\n\n\n\n\n\n\n";
+	getch();
+}
+
+//    	ADMINISTRATOR MENU FUNCTION
+void admin_menu()
+{
+	clrscr();
+	int ch2;
+	cout<<"\n\n\n\tAdmin Menu";
+	cout<<"\n\n\t1.Add Item";
+	cout<<"\n\n\t2.Display Items";
+	cout<<"\n\n\t3.Modify Item";
+	cout<<"\n\n\t4.Delete Item";
+	cout<<"\n\n\t5.Add Book";
+	cout<<"\n\n\t6.Display Books";
+	cout<<"\n\n\t7.Modify book";
+	cout<<"\n\n\t8.Delete book";
+	cout<<"\n\n\t9.Back to main menu";
+	cout<<"\n\n\tEnter Your Choice(1-9): ";
+	cin>>ch2;
+	switch(ch2)
+	{
+		case 1: clrscr();
+			write_item();break;
+		case 2: display_alls();break;
+
+		case 3: modify_item();break;
+		case 4: delete_item();break;
+		case 5: clrscr();
+			write_book();break;
+		case 6: display_allb();break;
+
+		case 7: modify_book();break;
+		case 8: delete_book();break;
+		case 9: return;
+		default:cout<<"\a";
+	}
+	admin_menu();
+}
+
+//    	THE MAIN FUNCTION OF PROGRAM
+void main()
+{
+	char ch;
+	intro();
+	do
+	{
+		clrscr();
+		cout<<"\n\n\n\tMain Menu";
+		cout<<"\n\n\t1.Admin";
+		cout<<"\n\n\t2.Exit";
+		cout<<"\n\n\tSelect Your Choice(1-2): ";
+		ch=getche();
+		switch(ch)
+		{
+			case '1':admin_menu();
+				 break;
+			case '2':exit(0);
+			default :cout<<"\a";
+		}
+	}while(ch!='2');
+}
